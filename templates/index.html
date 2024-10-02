@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InsideTalk</title>
+    <style>
+        /* Styling the overall body */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #FFEB3B, #E91E63, #03A9F4, #4CAF50);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* Set height to fill the viewport */
+        }
+
+        @keyframes gradientBG {
+            0% {background-position: 0% 50%;}
+            50% {background-position: 100% 50%;}
+            100% {background-position: 0% 50%;}
+        }
+
+        h1 {
+            color: white; 
+            text-align: center; 
+            font-size: 3.5em; 
+            font-family: 'Karla'; 
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); 
+            letter-spacing: 1px; 
+            line-height: 1.2; 
+            margin-bottom: 20px;
+        }
+        
+        h2 {
+            color: white; 
+            text-align: center; 
+            font-size: 1em; 
+            font-family: 'Karla';
+            font-weight: 400; 
+            margin-bottom: 10px; 
+            letter-spacing: 0.5px; 
+            line-height: 1.4; 
+        }        
+               
+
+        input[type="text"], button {
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 30px;
+            border: none;
+            font-size: 1em;
+            width: auto; 
+            display: inline-block; 
+        }
+
+        input[type="text"] {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            flex: 1;
+        }
+
+        button {
+            background-color: #FFEB3B;
+            color: #333;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            padding: 10px 15px; 
+            margin-left: 10px; 
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        #chat_output {
+            margin-top: 20px;
+            flex: 1; 
+            overflow-y: auto; 
+            padding-right: 10px;
+            padding-bottom: 20px; 
+        }
+
+       
+        .emotion-box {
+            margin: 10px;
+            padding: 15px;
+            border-radius: 25px;
+            color: white;
+            width: 90%;
+            display: inline-block;
+            vertical-align: top;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); 
+            background-color: #333; 
+        }
+
+        .emotion-box::before {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            top: 15px; 
+        }
+
+        .joy {
+            background-color: #FFD700;
+            border-left: 10px solid #FFD700;
+        }
+        .joy::before {
+            border-color: transparent #FFD700 transparent transparent;
+            left: 20px;
+        }
+
+        .sadness {
+            background-color: #87CEEB;
+            border-left: 10px solid #87CEEB;
+        }
+        .sadness::before {
+            border-color: transparent #87CEEB transparent transparent;
+            left: 20px;
+        }
+
+        .anger {
+            background-color: #FF6347;
+            border-left: 10px solid #FF6347;
+        }
+        .anger::before {
+            border-color: transparent #FF6347 transparent transparent;
+            left: 20px;
+        }
+
+        .fear {
+            background-color: #9370DB;
+            border-left: 10px solid #9370DB;
+        }
+        .fear::before {
+            border-color: transparent #9370DB transparent transparent;
+            left: 20px;
+        }
+
+        .disgust {
+            background-color: #32CD32;
+            border-left: 10px solid #32CD32;
+        }
+        .disgust::before {
+            border-color: transparent #32CD32 transparent transparent;
+            left: 20px;
+        }
+
+        .emotion-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .emoji {
+            font-size: 25px;
+            margin-right: 10px;
+        }
+
+        .emotion-checkboxes {
+            display: flex; 
+            flex-wrap: wrap; 
+            margin: 10px 0; 
+        }
+
+        input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        label {
+            font-size: 1.2em;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>InsideTalk</h1>
+    <h2>An Inside-Out themed Chatbot!</h2>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <div style="display: flex; align-items: center;">
+        <input type="text" id="user_input" placeholder="How are you feeling today?">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <div class="emotion-checkboxes">
+        <label><input type="checkbox" id="joy" name="emotions" value="joy"> Joy 😊</label>
+        <label><input type="checkbox" id="sadness" name="emotions" value="sadness"> Sadness 😢</label>
+        <label><input type="checkbox" id="anger" name="emotions" value="anger"> Anger 😠</label>
+        <label><input type="checkbox" id="fear" name="emotions" value="fear"> Fear 😨</label>
+        <label><input type="checkbox" id="disgust" name="emotions" value="disgust"> Disgust 🤢</label>
+    </div>
+
+    <div id="chat_output"></div>
+
+    <script>
+        function loadChatHistory() {
+            const chatOutput = document.getElementById('chat_output');
+            const chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+            chatHistory.forEach(item => {
+                const emotionBox = document.createElement('div');
+                emotionBox.classList.add('emotion-box', item.emotionClass);
+
+                const emotionTitle = document.createElement('div');
+                emotionTitle.classList.add('emotion-title');
+                emotionTitle.innerHTML = `${item.emoji} ${item.name}`;
+
+                const emotionText = document.createElement('div');
+                emotionText.innerText = item.response;
+
+                emotionBox.appendChild(emotionTitle);
+                emotionBox.appendChild(emotionText);
+
+                chatOutput.appendChild(emotionBox);
+            });
+
+            chatOutput.scrollTop = chatOutput.scrollHeight;
+        }
+
+        function sendMessage() {
+            const userInput = document.getElementById('user_input').value;
+
+            const selectedEmotions = Array.from(document.querySelectorAll('input[name="emotions"]:checked'))
+                                          .map(checkbox => checkbox.value)
+                                          .join(',');
+
+            fetch('/chat', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `user_input=${userInput}&selected_emotions=${selectedEmotions}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                const chatOutput = document.getElementById('chat_output');
+
+                data.responses.forEach(responseObj => {
+                    const emotionBox = document.createElement('div');
+                    emotionBox.classList.add('emotion-box', responseObj.emotionClass);
+
+                    const emotionTitle = document.createElement('div');
+                    emotionTitle.classList.add('emotion-title');
+                    emotionTitle.innerHTML = `${responseObj.emoji} ${responseObj.name}`;
+
+                    const emotionText = document.createElement('div');
+                    emotionText.innerText = responseObj.response;
+
+                    emotionBox.appendChild(emotionTitle);
+                    emotionBox.appendChild(emotionText);
+
+                    chatOutput.appendChild(emotionBox);
+
+                    storeChatMessage(responseObj);
+                });
+
+                chatOutput.scrollTop = chatOutput.scrollHeight;
+
+                document.getElementById('user_input').value = '';
+            });
+        }
+
+        function storeChatMessage(responseObj) {
+            const chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+            chatHistory.push(responseObj);
+            localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+        }
+
+        localStorage.removeItem('chatHistory');
+
+        window.onload = loadChatHistory;
+    </script>
+</body>
+</html>
