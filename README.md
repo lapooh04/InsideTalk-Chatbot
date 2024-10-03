@@ -23,6 +23,6 @@ This innovative approach allows users to explore their emotional landscapes, ena
 To install the project, run the following commands:
 
 ```bash
-git clone https://github.com/yourusername/InsideTalk-Chatbot.git
+git clone https://github.com/lapooh04/InsideTalk-Chatbot.git
 cd InsideTalk-Chatbot
 pip install -r requirements.txt
